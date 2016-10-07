@@ -91,4 +91,11 @@ eslint eslint-loader
 
 ## 代码push到github
 
+- package.json
+- README.md 完善
+
 ## 将包发布到npm
+
+- registry
+- .npmignore 忽略提交 gitignore
+- npm adduser & npm publish
