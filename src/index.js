@@ -1,5 +1,6 @@
-// import a from './a.json'
-
+/**
+ * sparrow library
+ */
 export default class sparrow {
 	constructor() {
 		this.name = "sparrow"

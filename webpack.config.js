@@ -1,52 +1,58 @@
-var path = require('path')
-var webpack = require('webpack')
-var mode = require('yargs').argv.mode
-// plugin
-var uglifyPlugin = webpack.optimize.UglifyJsPlugin
+const path = require('path');
+const webpack = require('webpack');
+const UglifyJsPlugin = require('uglifyjs-webpack-plugin')
+const libraryName = "sparrow"; // package name
+const cleanWebpackPlugin = require('clean-webpack-plugin');
 
-var libraryName = 'sparrow'
-var plugins = []
-var filename = ''
+module.exports = env => {
+  let filename = env.mode == "development" ? `${libraryName}.js` : `${libraryName}.min.js`;
 
-// 生产环境
-if(mode === 'production'){
-  plugins.push(new uglifyPlugin({minimize: true}))
-  filename = libraryName + '.min.js'
-}
-// 开发环境
-else {
-  filename = libraryName + '.js'
-}
-
-var config = {
-  entry: path.resolve(__dirname, './src/index.js'),
-  output: {
-    path: path.resolve(__dirname, './lib'),
-    filename: filename,
-    library: libraryName,
-    libraryTarget: 'umd',
-    umdNamedDefine: true
-  },
-  "devtool": 'cheap-source-map',
-  resolve: {
-    extension: ['', '.js', '.css', '.json'],
-    root: path.resolve('./src')
-  },
-  module: {
-    loaders: [
-      {
-        test: /\.js$/,
-        loader: 'babel',
-        exclude: /node_modules/
-      },
-      {
-        test: /\.js$/,
-        loader: 'eslint',
-        exclude: /node_modules/
-      }
+  return {
+    mode: env.mode,
+    entry: path.resolve(__dirname, './src/index.js'),
+    output: {
+      path: path.resolve(__dirname, './lib'),
+      filename: filename,
+      library: libraryName,
+      libraryTarget: 'umd',
+      umdNamedDefine: true
+    },
+    devtool: 'source-map',
+    resolve: {
+      extensions: ['.js', '.css', '.json']
+    },
+    module: {
+      rules: [
+        {
+          test: /\.js$/,
+          use: ["babel-loader"]
+        }
+        // {
+        //   test: /\.js$/,
+        //   use: "eslint-loader",
+        //   exclude: /node_modules/
+        // }
+      ]
+    },
+    plugins: [
+      env.mode == "production" ? new UglifyJsPlugin({
+        sourceMap: true,
+        cache: true
+      }): {},
+      new webpack.BannerPlugin({
+        banner: `
+        @license Sparrow v1.0.2
+          sparrow.js
+        Copyright (c) 2016-present, yonyou, Inc.
+        
+        This source code is licensed under the MIT license found in the
+        LICENSE file in the root directory of this source tree.
+        
+        Author: Yonyou FED 
+        Date: 2018-08-08
+        `
+      }),
+      new cleanWebpackPlugin(['lib'])
     ]
-  },
-  plugins: plugins
+  }
 }
-
-module.exports = config
